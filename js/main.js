@@ -29,14 +29,14 @@ Vue.component("board", {
 </ul>
 </div>
 <ul class="cards">
-<li v-for="card in column1"><card :name="card.name" :points="card.points" @to-two="toColumnTwo" >   </card></li>
+<li v-for="card in column1"><card :name="card.name" :card_id="card.card_id" :points="card.points" @to-two="toColumnTwo" >   </card></li>
 </ul>
 </li>
 
 
 <li class="column">
 <ul>
-<li v-for="card in column2"><card :name="card.name" :points="card.points"></card></li>
+<li v-for="card in column2"><card :name="card.name"  :points="card.points"></card></li>
 </ul>
 </li>
 
@@ -106,6 +106,7 @@ Vue.component("board", {
                     points:this.points,
                     card_id:this.card_id
                 }
+                this.card_id +=1;
                 this.column1.push(info)
 
             }
@@ -113,28 +114,18 @@ Vue.component("board", {
 
 
         },
-        toColumnTwo(name,points){
+        toColumnTwo(name,points, card_id){
             let info = {
                 name:name,
                 points:points,
+                card_id:card_id
             }
-            
             for(i in this.column1){
-                donee = 0
-                for(j in points){
-                    if(points[j][1]){
-                        donee+=1
-                    }
-                    
-                    
-                }
-                if((this.column1[i].points.length/2) <= (donee)){
-                    console.log("qweqw")
+                
+                if(this.column1[i].card_id==card_id){
                     this.column1.splice(i, 1)
                     break
                 }
-                
-
             }
 
             this.column2.push(info)
@@ -167,8 +158,9 @@ Vue.component("card", {
         }    
         
         if ((this.count_of_tasks/2) <= (this.count_of_checked)){
-
-        this.$emit("to-two",this.name,this.points);
+            console.log(this.count_of_tasks)
+            console.log(this.count_of_checked)
+        this.$emit("to-two",this.name,this.points,this.card_id);
         
         }
     }
@@ -187,6 +179,10 @@ Vue.component("card", {
             type:Array,
             required:false,
         },
+        card_id:{
+            type:Number,
+            required:false,
+        }
         
     },
     computed: {
