@@ -6,7 +6,7 @@ Vue.component("board", {
     template: `
     
 <div class="board">
-<card hidden></card>
+
 <ul id="columns">
 <li class="column">
 <div class="form">
@@ -28,7 +28,9 @@ Vue.component("board", {
 <li class="error "v-for="error in errors">{{error}}</li>
 </ul>
 </div>
-
+<ul class="cards">
+<li v-for="card in column1"><card :name="name" :points="points"></card></li>
+</ul>
 </li>
 
 
@@ -48,6 +50,8 @@ Vue.component("board", {
             column2:[],
             column3:[],
 
+            cards:[],
+
             name:null,
             point1:null,
             point2:null,
@@ -57,7 +61,7 @@ Vue.component("board", {
             
             points:[],
 
-            errors:[]
+            errors:[],
 
         }
     },
@@ -92,8 +96,10 @@ Vue.component("board", {
                     name:this.name,
                     points:this.points
                 }
-                console.log(info)
-                eventBus.$emit('create-card', info)
+                
+                this.column1.push(info)
+                console.log(this.column1)
+                // eventBus.$emit('create-card', info)
             }
 
 
@@ -113,21 +119,29 @@ Vue.component("card", {
     `,
     data() {
         return{
-            name:null,
-            points:[],
             
         }
     },
     mounted() {
-        eventBus.$on('create-card', info=> {
+        // eventBus.$on('create-card', info=> {
 
-            this.name = info.name
-            this.points.push(info.points)
-            console.log(this.points)
+        //     this.name = info.name
+        //     this.points.push(info.points)
+        //     console.log(this.points)
 
-        })
+        // })
 
 
+    },
+    props:{
+        name:{
+            type:String,
+            required:false,
+        },
+        points:{
+            type:Array,
+            required:false,
+        }
     }
 });
 
