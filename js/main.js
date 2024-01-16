@@ -44,7 +44,7 @@ Vue.component("board", {
 
 <li class="column">
 <ul>
-<li v-for="card in column3"><card :name="card.name"  :points="card.points" ></card></li>
+<li v-for="card in column3"><card :name="card.name" :dat="card.dat" :points="card.points" ></card></li>
 </ul>
 </li>
 
@@ -135,12 +135,12 @@ Vue.component("board", {
 
             this.column2.push(info)
         },
-        toColumnThree(name,points, card_id){
-            console.log("delere")
+        toColumnThree(name,points, card_id,now){
             let info = {
                 name:name,
                 points:points,
                 card_id:card_id,
+                dat:now,
             }
             for(i in this.column2){
                 
@@ -162,6 +162,7 @@ Vue.component("card", {
 <ul>
 <li v-for="point in points"><task :point="point[0]" :done="point[1]" @checked="updatechecked"></task></li>
 </ul>
+<p>{{dat}}<p>
 </div>
     `,
     data() {
@@ -177,10 +178,11 @@ Vue.component("card", {
                 break
             }
         }    
-        console.log(this.count_of_tasks)
-        console.log(this.count_of_checked)
+
         if ((this.count_of_tasks) == (this.count_of_checked)){
-        this.$emit("to-three",this.name,this.points,this.card_id);
+        var now = new Date() 
+        console.log(now)
+        this.$emit("to-three",this.name,this.points,this.card_id,now);
         }
         else if ((this.count_of_tasks/2) <= (this.count_of_checked)){
         this.$emit("to-two",this.name,this.points,this.card_id, this.count_of_checked);
@@ -207,6 +209,10 @@ Vue.component("card", {
         },
         count_of_checked:{
             type:Number,
+            required:false,
+        },
+        dat:{
+            type:Array,
             required:false,
         }
         
