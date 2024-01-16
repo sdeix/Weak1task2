@@ -7,8 +7,8 @@ Vue.component("board", {
     
 <div class="board">
 
-<ul id="columns">
-<li class="column">
+<ul  id="columns">
+<li v-if="!blockOne" class="column">
 <div class="form">
 <form @submit.prevent="onSubmit">
 <label for="name">Заголовок</label> <input type="text" id="name" v-model="name"> 
@@ -36,7 +36,7 @@ Vue.component("board", {
 
 <li class="column">
 <ul>
-<li v-for="card in column2"><card :name="card.name" :card_id="card.card_id" :count_of_checked="card.count_of_checked" :points="card.points"  @to-three="toColumnThree"></card></li>
+<li  v-for="card in column2"><card :name="card.name" :card_id="card.card_id" :count_of_checked="card.count_of_checked" :points="card.points"  @to-three="toColumnThree"></card></li>
 </ul>
 </li>
 
@@ -72,6 +72,8 @@ Vue.component("board", {
             errors:[],
 
             card_id:0,
+
+            blockOne:false,
 
         }
     },
@@ -134,6 +136,9 @@ Vue.component("board", {
             }
 
             this.column2.push(info)
+            if(this.column2.length==5){
+                this.blockOne = true;
+            }
         },
         toColumnThree(name,points, card_id,now){
             let info = {
@@ -151,6 +156,11 @@ Vue.component("board", {
             }
 
             this.column3.push(info)
+            console.log(this.column2.length)
+            if(this.column2.length!=5){
+                console.log(this.column2.length)
+                this.blockOne =false;
+            }
         }
     }
 });
@@ -159,7 +169,7 @@ Vue.component("card", {
     template: `
 <div class="card">
 <h3>{{name}}</h3>
-<ul>
+<ul >
 <li v-for="point in points"><task :point="point[0]" :done="point[1]" @checked="updatechecked"></task></li>
 </ul>
 <p>{{dat}}<p>
@@ -190,8 +200,6 @@ Vue.component("card", {
     }
     },
     mounted() {
-        
-
 
     },
     props:{
