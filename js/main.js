@@ -29,7 +29,7 @@ Vue.component("board", {
 </ul>
 </div>
 <ul class="cards">
-<li v-for="card in column1"><card :name="name" :points="points"></card></li>
+<li v-for="card in column1"><card :name="card.name" :points="card.points">   </card></li>
 </ul>
 </li>
 
@@ -63,6 +63,8 @@ Vue.component("board", {
 
             errors:[],
 
+            card_id:0,
+
         }
     },
     methods:{
@@ -94,11 +96,12 @@ Vue.component("board", {
             if(this.errors.length==0){
                 let info = {
                     name:this.name,
-                    points:this.points
+                    points:this.points,
+                    card_id:this.card_id
                 }
                 
                 this.column1.push(info)
-                console.log(this.column1)
+                console.log(this.column1[0].name)
                 // eventBus.$emit('create-card', info)
             }
 
