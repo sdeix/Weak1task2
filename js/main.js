@@ -50,6 +50,11 @@ Vue.component("board", {
 
 
 </ul>
+<button
+      v-on:click="Cleen()"
+>
+  cleen
+</button>
 </div>
     `,
     data() {
@@ -58,6 +63,7 @@ Vue.component("board", {
             column2:[],
             column3:[],
 
+            allColumns:[],
             cards:[],
 
             name:null,
@@ -77,6 +83,50 @@ Vue.component("board", {
 
         }
     },
+    mounted(){
+            if (localStorage.getItem('allColumns')) {
+                  try {
+                    this.allColumns = JSON.parse(localStorage.getItem('allColumns'));
+                    this.column1 = this.allColumns[0]
+                    this.column2 = this.allColumns[1]
+                    this.column3 = this.allColumns[2]
+                    this.blockOne = this.allColumns[3]
+                  } catch(e) {
+                    localStorage.removeItem('allColumns');
+                  }
+            }
+    },
+    watch:{
+        column1(){
+              this.allColumns = [this.column1,this.column2,this.column3, this.blockOne]
+              
+  
+  
+  
+  
+              const parsed = JSON.stringify(this.allColumns);
+              localStorage.setItem('allColumns', parsed);
+  
+  
+        },
+        column2(){
+              allColumns = [this.column1, this.column2, this.column3, this.blockOne]
+  
+              
+              const parsed = JSON.stringify(this.allColumns);
+              localStorage.setItem('allColumns', parsed);
+  
+        },
+        column3(){
+              allColumns = [this.column1, this.column2, this.column3, this.blockOne]
+  
+              
+              const parsed = JSON.stringify(this.allColumns);
+              localStorage.setItem('allColumns', parsed);
+  
+  
+        },
+  },  
     methods:{
         onSubmit(){
             this.errors=[]
@@ -156,14 +206,21 @@ Vue.component("board", {
             }
 
             this.column3.push(info)
-            console.log(this.column2.length)
             if(this.column2.length!=5){
-                console.log(this.column2.length)
                 this.blockOne =false;
             }
-        }
+        },
+        Cleen(){
+            this.column1=[],
+            this.column2=[],
+            this.column3=[],
+            this.dat=[],
+            this.blockOne= false
+
+      },
     }
 });
+
 
 Vue.component("card", {
     template: `
@@ -180,6 +237,7 @@ Vue.component("card", {
         }
     },
     methods: {
+
         updatechecked(point) {
         this.count_of_checked+=1;
         for(i in this.points){
@@ -191,6 +249,7 @@ Vue.component("card", {
 
         if ((this.count_of_tasks) == (this.count_of_checked)){
         var now = new Date() 
+        now = String(now);
         console.log(now)
         this.$emit("to-three",this.name,this.points,this.card_id,now);
         }
@@ -220,7 +279,7 @@ Vue.component("card", {
             required:false,
         },
         dat:{
-            type:Array,
+            type:String,
             required:false,
         }
         
