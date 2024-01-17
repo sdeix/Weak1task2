@@ -29,14 +29,14 @@ Vue.component("board", {
 </ul>
 </div>
 <ul class="cards">
-<li v-for="card in column1"><card :name="card.name" :block="blockOne" :card_id="card.card_id" :count_of_checked=0 :points="card.points" @to-two="toColumnTwo" >   </card></li>
+<li v-for="card in column1"><card :name="card.name" :column=1 :block="blockOne" :card_id="card.card_id" :count_of_checked="card.count_of_checked" :points="card.points" @to-two="toColumnTwo" >   </card></li>
 </ul>
 </li>
 
 
 <li class="column">
 <ul>
-<li  v-for="card in column2"><card :name="card.name" :block=false :card_id="card.card_id" :count_of_checked="card.count_of_checked" :points="card.points"   @to-three="toColumnThree"></card></li>
+<li  v-for="card in column2"><card :name="card.name" :column=2 :block=false :card_id="card.card_id" :count_of_checked="card.count_of_checked" :points="card.points" @to-three="toColumnThree" @to-one="toColumnOne" >  ></card></li>
 </ul>
 </li>
 
@@ -44,7 +44,7 @@ Vue.component("board", {
 
 <li class="column">
 <ul>
-<li v-for="card in column3"><card :name="card.name" :dat="card.dat" :points="card.points" ></card></li>
+<li  v-for="card in column3"><card class="done_card" :name="card.name" :pblock=true :dat="card.dat" :column=3 :points="card.points" ></card></li>
 </ul>
 </li>
 
@@ -162,7 +162,8 @@ Vue.component("board", {
                 let info = {
                     name:this.name,
                     points:this.points,
-                    card_id:this.card_id
+                    card_id:this.card_id,
+                    count_of_checked:0,
                 }
                 this.card_id +=1;
                 this.column1.push(info)
@@ -172,10 +173,27 @@ Vue.component("board", {
 
 
         },
+        toColumnOne(name,points, card_id,count_of_checked){
+            if(this.column1.length<3){
+                let info = {
+                    name:name,
+                    points:points,
+                    card_id:card_id,
+                    count_of_checked:count_of_checked
+                }
+                for(i in this.column2){
+                    
+                    if(this.column2[i].card_id==card_id){
+                        this.column2.splice(i, 1)
+                        break
+                    }
+                }
+
+                this.column1.push(info)
+            }
+
+        },
         toColumnTwo(name,points, card_id,count_of_checked){
-            // console.log(name,points)
-            // console.log(points)
-            // console.log(count_of_checked)
             if(this.column2.length==5){
                 this.blockOne = true;
             }
@@ -193,8 +211,11 @@ Vue.component("board", {
                         break
                     }
                 }
+
                 this.column2.push(info)
             }
+            let checks = 1;
+            eventBus.$emit('checkTwo',checks)
 
         },
         toColumnThree(name,points, card_id,now){
@@ -216,11 +237,6 @@ Vue.component("board", {
             this.blockOne =false;
             let checks = 1;
             eventBus.$emit('checkOne',checks)
-
-
-
-
-
         },
         Cleen(){
             this.column1=[],
@@ -239,7 +255,7 @@ Vue.component("card", {
 <div class="card">
 <h3>{{name}}</h3>
 <ul >
-<li v-for="point in points"><task :block="block" :point="point[0]" :done="point[1]" @checked="updatechecked"></task></li>
+<li v-for="point in points"><task :block="block" :point="point[0]" :pblock="pblock" :done="point[1]" @checked="updatechecked" @updatetwo="updatetwo"></task></li>
 </ul>
 <p>{{dat}}</p>
 </div>
@@ -260,13 +276,34 @@ Vue.component("card", {
             }
         }    
 
+        // console.log(this.points)
+        // console.log(this.count_of_checked)
+        // console.log(this.count_of_tasks)
         if ((this.count_of_tasks) == (this.count_of_checked)){
         var now = new Date() 
         now = String(now);
+        console.log(this.name,this.points,this.card_id,now)
         this.$emit("to-three",this.name,this.points,this.card_id,now);
         }
         else if ((this.count_of_tasks/2) <= (this.count_of_checked)){
         this.$emit("to-two",this.name,this.points,this.card_id, this.count_of_checked);
+        }
+    },
+    updatetwo(point){
+        this.count_of_checked-=1;
+        if(this.column==2 || this.column==1){
+            for(i in this.points){
+                if(this.points[i][0]==point && this.points[i][1] == true){
+                    this.points[i][1] = false
+                    break
+                }
+            }
+            if(this.column==2){
+                if ((this.count_of_tasks/2) > (this.count_of_checked)){
+                    this.$emit("to-one",this.name,this.points,this.card_id, this.count_of_checked);
+
+                    }
+            }           
         }
     }
     },
@@ -280,8 +317,20 @@ Vue.component("card", {
             }    
             
             if ((this.count_of_tasks/2) <= (this.count_of_checked) && (this.count_of_tasks) != (this.count_of_checked)){
-                console.log(this.name)
             this.$emit("to-two",this.name,this.points,this.card_id, this.count_of_checked);
+        }
+            
+        })
+        eventBus.$on('checkTwo',checks => {
+            this.count_of_checked = 0
+            for(i in this.points){
+                if(this.points[i][1] == true){
+                    this.count_of_checked += 1
+                }
+            }    
+            
+            if ((this.count_of_tasks/2) > (this.count_of_checked)){
+            this.$emit("to-one",this.name,this.points,this.card_id, this.count_of_checked);
         }
             
         })
@@ -309,6 +358,14 @@ Vue.component("card", {
         },
         block:{
             type:Boolean,
+            required:false
+        },
+        column:{
+            type:Number,
+            required:false,
+        },
+        pblock:{
+            tupe:Boolean,
             required:false
         }
         
@@ -345,16 +402,29 @@ Vue.component("task", {
         block:{
             type: Boolean,
             required:false,
+        },       
+        pblock:{
+            tupe:Boolean,
+            required:false
         }
     },
     methods:{
         check(){
-            if(!this.done){
-                if(!this.block){
-                    this.done=true
-                    this.$emit("checked",this.point);
+            if(!this.pblock){
+                if(!this.done){
+                    if(!this.block){
+                        this.done=true
+                        this.$emit("checked",this.point);
+                    }
+                }
+                else{
+                    if(!this.block){
+                        this.done=false
+                        this.$emit("updatetwo",this.point);
+                    }
                 }
             }
+
 
         }
 

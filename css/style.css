@@ -67,3 +67,7 @@ li{
     border: 1px solid black;
     border-radius: 4px;
 }
+
+.done_card{
+    background-color: rgba(27, 199, 27, 0.274);
+}
