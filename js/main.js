@@ -326,7 +326,7 @@ Vue.component("task", {
     template: `
 <div class="task" 
 @click="check"
-:class="{done:done}">{{point}}{{block}}</div>
+:class="{done:done}">{{point}}</div>
     `,
     data() {
         return{
